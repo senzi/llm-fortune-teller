@@ -6,6 +6,37 @@ const apiResponse = ref(null);
 const loading = ref(false);
 const error = ref(null);
 
+// CalculateSignLevel API 测试
+const signLevelInput = ref('');
+const signLevelResponse = ref(null);
+const signLevelLoading = ref(false);
+const signLevelError = ref(null);
+
+async function calculateSignLevel() {
+  signLevelLoading.value = true;
+  signLevelError.value = null;
+  try {
+    const response = await fetch('/api/calculateSignLevel', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ wish: signLevelInput.value }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    signLevelResponse.value = await response.json();
+  } catch (err) {
+    signLevelError.value = err.message;
+    console.error('计算签等级失败:', err);
+  } finally {
+    signLevelLoading.value = false;
+  }
+}
+
 async function callApi() {
   loading.value = true;
   error.value = null;
@@ -102,11 +133,54 @@ async function validateWish() {
       <div v-if="wishResponse.result" class="wish-result" :class="wishResponse.result.category">
         <h4>审核结果: {{ wishResponse.result.category === 'allow' ? '通过' : '拒绝' }}</h4>
         <p>{{ wishResponse.result.reason }}</p>
+        <div v-if="wishResponse.result.wish" class="wish-content">
+          <h4>愿望内容:</h4>
+          <p>{{ wishResponse.result.wish }}</p>
+        </div>
       </div>
     </div>
 
     <div v-if="wishError" class="api-error">
       <p>错误: {{ wishError }}</p>
+    </div>
+  </div>
+
+  <div class="api-section sign-level-section">
+    <h2>测试 CalculateSignLevel API</h2>
+    <div class="wish-form">
+      <textarea 
+        v-model="signLevelInput" 
+        placeholder="请输入您的愿望..." 
+        :disabled="signLevelLoading"
+        class="wish-input"
+      ></textarea>
+      <button 
+        @click="calculateSignLevel" 
+        :disabled="signLevelLoading || !signLevelInput.trim()" 
+        class="api-button"
+      >
+        {{ signLevelLoading ? '计算中...' : '计算签等级' }}
+      </button>
+    </div>
+
+    <div v-if="signLevelResponse" class="api-response">
+      <h3>计算结果:</h3>
+      <pre>{{ JSON.stringify(signLevelResponse, null, 2) }}</pre>
+      
+      <div v-if="signLevelResponse.result" class="sign-level-result" :class="signLevelResponse.result.level">
+        <h4>签等级: {{ signLevelResponse.result.level }}</h4>
+        <div class="sign-level-details">
+          <p><strong>时间戳:</strong> {{ new Date(signLevelResponse.result.timestamp).toLocaleString() }}</p>
+          <div class="wish-content">
+            <h4>愿望内容:</h4>
+            <p>{{ signLevelResponse.result.wish }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="signLevelError" class="api-error">
+      <p>错误: {{ signLevelError }}</p>
     </div>
   </div>
 </template>
@@ -252,5 +326,75 @@ async function validateWish() {
 
 .wish-result p {
   margin: 0;
+}
+
+.wish-content {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #ccc;
+}
+
+.wish-content h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.wish-content p {
+  margin: 0;
+  font-style: italic;
+  color: #666;
+}
+
+/* 签等级相关样式 */
+.sign-level-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.sign-level-result {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.sign-level-result.吉 {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.sign-level-result.中 {
+  background-color: #fff8e1;
+  border-left: 4px solid #ffc107;
+}
+
+.sign-level-result.平 {
+  background-color: #f5f5f5;
+  border-left: 4px solid #9e9e9e;
+}
+
+.sign-level-result h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.sign-level-result.吉 h4 {
+  color: #2e7d32;
+}
+
+.sign-level-result.中 h4 {
+  color: #ff8f00;
+}
+
+.sign-level-result.平 h4 {
+  color: #616161;
+}
+
+.sign-level-details {
+  margin-top: 0.5rem;
+}
+
+.sign-level-details p {
+  margin: 0.25rem 0;
 }
 </style>

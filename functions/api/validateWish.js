@@ -105,7 +105,8 @@ export async function onRequest(context) {
         status: 'success',
         result: {
           category: 'block',
-          reason: '对不起，您的提交涉及不当内容，我无法为您提供服务。'
+          reason: '对不起，您的提交涉及不当内容，我无法为您提供服务。',
+          wish: ''
         }
       }), {
         headers: responseHeaders
@@ -143,7 +144,8 @@ export async function onRequest(context) {
 请用以下 JSON 格式输出结果：
 {
   "category": "block" | "allow",
-  "reason": "如果为block，始终为：对不起，您的提交涉及不当内容，我无法为您提供服务。；如果为allow，可写：内容健康，无需阻止"
+  "reason": "如果为block，始终为：对不起，您的提交涉及不当内容，我无法为您提供服务。；如果为allow，可写：内容健康，无需阻止",
+  "wish": "以"用户的愿望是："为开头，复述用户的愿望内容，如果为block则留空"
 }
 `;
     
