@@ -13,6 +13,9 @@
       © 2025 DeepLuck | 
       <a href="https://github.com/senzi/llm-fortune-teller" target="_blank">
         GitHub
+      </a> | 
+      <a href="https://afdian.com/a/sennes" target="_blank" class="afdian-link">
+        爱发电
       </a>
     </div>
   </footer>
@@ -52,6 +55,16 @@
 
 .copyright a:hover {
   color: #666;
+}
+
+.afdian-link {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.afdian-link:hover {
+  color: #42b883 !important;
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
