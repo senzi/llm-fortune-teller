@@ -5,6 +5,7 @@ import HeaderLogo from '../components/HeaderLogo.vue';
 import WishInput from '../components/WishInput.vue';
 import StepFlow from '../components/StepFlow.vue';
 import SignCard from '../components/SignCard.vue';
+import AppFooter from '../components/AppFooter.vue';
 
 // 路由
 const router = useRouter();
@@ -165,6 +166,9 @@ async function generateSign(wish, level) {
         @restart="handleRestart"
       />
     </div>
+    
+    <!-- 页脚组件 -->
+    <AppFooter />
   </div>
 </template>
 
