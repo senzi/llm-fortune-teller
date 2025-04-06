@@ -40,7 +40,7 @@ watch(() => props.signData.level, (newValue) => {
 });
 
 function toggleMode() {
-  displayMode.value = displayMode.value === 'classic' ? 'modern' : displayMode.value === 'modern' ? 'both' : 'classic';
+  displayMode.value = displayMode.value === 'classic' ? 'modern' : 'classic';
 }
 
 function handleRestart() {
