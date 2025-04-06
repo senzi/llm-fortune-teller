@@ -65,7 +65,7 @@ const activeStep = computed(() => {
 .steps-container {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
 }
 
 .step {
@@ -115,7 +115,7 @@ const activeStep = computed(() => {
 }
 
 .step-line {
-  height: 30px;
+  height: 20px;
   width: 2px;
   background-color: #ddd;
   margin-top: 4px;
@@ -146,7 +146,7 @@ const activeStep = computed(() => {
 .step-animation {
   display: flex;
   gap: 4px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .dot {

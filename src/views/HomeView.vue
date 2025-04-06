@@ -187,11 +187,11 @@ async function generateSign(wish, level) {
 }
 
 .processing-section {
-  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 0;
+  padding: 20px 0;
+  margin-top: -10px; /* 减少与标题的间距 */
 }
 
 .result-section {

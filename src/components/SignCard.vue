@@ -1,7 +1,18 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
+import { animate } from 'animejs';
 
-// 接收签文数据作为prop
+// 动态添加 DaisyUI CSS
+onMounted(() => {
+  // 检查是否已经加载了 DaisyUI
+  if (!document.querySelector('link[href*="daisyui"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.bootcdn.net/ajax/libs/daisyui/4.12.23/full.min.css';
+    document.head.appendChild(link);
+  }
+});
+
 const props = defineProps({
   signData: {
     type: Object,
@@ -9,268 +20,423 @@ const props = defineProps({
   }
 });
 
-// 定义事件
 const emit = defineEmits(['restart']);
-
-// 显示模式：classic, modern, both
 const displayMode = ref('classic');
 
-// 切换显示模式
-function toggleMode() {
-  if (displayMode.value === 'classic') {
-    displayMode.value = 'modern';
-  } else if (displayMode.value === 'modern') {
-    displayMode.value = 'both';
-  } else {
-    displayMode.value = 'classic';
+const cardRef = ref(null);
+const contentRef = ref(null);
+const levelBadgeClass = ref(''); // 添加这一行来定义缺失的变量
+
+// 初始化绑定
+onMounted(() => {
+  if (props.signData && props.signData.level) {
+    levelBadgeClass.value = props.signData.level;
   }
+});
+
+// 当props.signData.level变化时更新
+watch(() => props.signData.level, (newValue) => {
+  levelBadgeClass.value = newValue;
+});
+
+function toggleMode() {
+  displayMode.value = displayMode.value === 'classic' ? 'modern' : displayMode.value === 'modern' ? 'both' : 'classic';
 }
 
-// 重新抽签
 function handleRestart() {
   emit('restart');
 }
+
+onMounted(async () => {
+  await nextTick();
+  if (cardRef.value) {
+    animate(cardRef.value, {
+      opacity: [0, 1],
+      translateY: [20, 0],
+      duration: 800,
+      easing: 'easeOutCubic'
+    });
+  }
+});
+
+watch(displayMode, async () => {
+  await nextTick();
+  if (contentRef.value) {
+    animate(contentRef.value, {
+      opacity: [0, 1],
+      duration: 600,
+      easing: 'easeOutSine'
+    });
+  }
+});
 </script>
 
 <template>
   <div class="sign-card-container">
-    <div class="sign-card" :class="props.signData.level">
-      <!-- 愿望内容 -->
-      <div class="wish-header">
-        <h3 class="wish-text">{{ props.signData.confirmed_wish }}</h3>
-        <div class="sign-level-badge">{{ props.signData.level }}</div>
-      </div>
+    <div ref="cardRef" class="card bg-base-100">
+      <!-- 顶部装饰条 -->
+      <div class="fortune-indicator" :class="props.signData.level"></div>
       
-      <!-- 签文内容 - 经典模式 -->
-      <div v-if="displayMode === 'classic' || displayMode === 'both'" class="sign-content classic">
-        <div class="sign-text">
-          <h4 class="content-title">签文</h4>
-          <p class="text-content">{{ props.signData.sign_text.classic }}</p>
+      <!-- 卡片内容 -->
+      <div class="card-body">
+        <div class="wish-header">
+          <h2 class="card-title">
+            {{ props.signData.confirmed_wish }}
+            <div class="badge" :class="levelBadgeClass">{{ props.signData.level }}</div>
+          </h2>
         </div>
+
+        <!-- 切换内容区域 -->
+        <div class="divider my-2"></div>
         
-        <div class="sign-interpretation">
-          <h4 class="content-title">解签</h4>
-          <p class="text-content">{{ props.signData.interpretation.classic }}</p>
+        <div 
+          v-if="displayMode === 'classic' || displayMode === 'both'"
+          ref="contentRef" 
+          class="sign-content classic"
+        >
+          <div class="content-section">
+            <h3 class="content-title">
+              <span class="title-icon">📜</span>
+              签文 · 古风
+            </h3>
+            <p class="text-content">{{ props.signData.sign_text.classic }}</p>
+          </div>
+          
+          <div class="content-section">
+            <h3 class="content-title">
+              <span class="title-icon">🔮</span>
+              解签
+            </h3>
+            <p class="text-content">{{ props.signData.interpretation.classic }}</p>
+          </div>
         </div>
-      </div>
-      
-      <!-- 签文内容 - 现代模式 -->
-      <div v-if="displayMode === 'modern' || displayMode === 'both'" class="sign-content modern">
-        <div class="sign-text">
-          <h4 class="content-title">签文</h4>
-          <p class="text-content">{{ props.signData.sign_text.modern }}</p>
+
+        <div 
+          v-if="displayMode === 'modern' || displayMode === 'both'"
+          ref="contentRef" 
+          class="sign-content modern"
+        >
+          <div class="content-section">
+            <h3 class="content-title">
+              <span class="title-icon">📝</span>
+              签文 · 白话
+            </h3>
+            <p class="text-content">{{ props.signData.sign_text.modern }}</p>
+          </div>
+          
+          <div class="content-section">
+            <h3 class="content-title">
+              <span class="title-icon">💫</span>
+              解签
+            </h3>
+            <p class="text-content">{{ props.signData.interpretation.modern }}</p>
+          </div>
         </div>
+
+        <div class="sign-tone">{{ props.signData.tone }}</div>
         
-        <div class="sign-interpretation">
-          <h4 class="content-title">解签</h4>
-          <p class="text-content">{{ props.signData.interpretation.modern }}</p>
+        <div class="disclaimer">
+          本签文由AI生成，仅供娱乐参考，不构成任何建议。<br>LLM由Deepseek提供
         </div>
-      </div>
-      
-      <!-- 签文风格 -->
-      <div class="sign-tone">
-        <span class="tone-label">{{ props.signData.tone }}</span>
-      </div>
-      
-      <!-- 免责声明 -->
-      <div class="disclaimer">
-        本签文由AI生成，仅供娱乐参考，不构成任何建议。使用模型：Deepseek LLM。
       </div>
     </div>
-    
-    <!-- 操作按钮 -->
+
     <div class="action-buttons">
-      <button @click="toggleMode" class="toggle-button">
-        切换风格 ({{ displayMode }})
+      <button @click="toggleMode" class="btn btn-outline btn-secondary">
+        <span class="btn-text">切换风格</span>
+        <span class="badge badge-sm">{{ displayMode }}</span>
       </button>
-      <button @click="handleRestart" class="restart-button">
-        再抽一次
-      </button>
+      <button @click="handleRestart" class="btn btn-primary">再抽一次</button>
     </div>
   </div>
 </template>
 
 <style scoped>
 .sign-card-container {
-  width: 100%;
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.sign-card {
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  transition: all 0.3s ease;
-  position: relative;
+.card {
+  width: 100%;
   overflow: hidden;
+  position: relative;
+  border-radius: 1rem;
+  opacity: 0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+              0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* 签等级样式 */
-.sign-card.吉 {
-  border-left: 5px solid #4caf50;
+.fortune-indicator {
+  height: 6px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.sign-card.中 {
-  border-left: 5px solid #ff9800;
+.fortune-indicator.吉 {
+  background: linear-gradient(90deg, #4caf50, #81c784);
 }
 
-.sign-card.平 {
-  border-left: 5px solid #9e9e9e;
+.fortune-indicator.中 {
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
+
+.fortune-indicator.平 {
+  background: linear-gradient(90deg, #9e9e9e, #bdbdbd);
+}
+
+.badge.吉 {
+  background-color: #4caf50;
+  color: white;
+}
+
+.badge.中 {
+  background-color: #ff9800;
+  color: white;
+}
+
+.badge.平 {
+  background-color: #9e9e9e;
+  color: white;
 }
 
 .wish-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 0.5rem;
 }
 
-.wish-text {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
-  flex: 1;
-}
-
-.sign-level-badge {
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 4px 12px;
-  border-radius: 16px;
-  margin-left: 12px;
-}
-
-.sign-card.吉 .sign-level-badge {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: #2e7d32;
-}
-
-.sign-card.中 .sign-level-badge {
-  background-color: rgba(255, 152, 0, 0.1);
-  color: #ef6c00;
-}
-
-.sign-card.平 .sign-level-badge {
-  background-color: rgba(158, 158, 158, 0.1);
-  color: #616161;
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1a1a1a;
 }
 
 .sign-content {
-  margin-bottom: 15px;
-  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.5s ease;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .sign-content.classic {
-  border-left: 3px solid #9c27b0;
-  padding-left: 16px;
+  background-color: rgba(142, 36, 170, 0.05);
+  border-left: 4px solid rgba(142, 36, 170, 0.6);
 }
 
 .sign-content.modern {
-  border-left: 3px solid #2196f3;
-  padding-left: 16px;
+  background-color: rgba(25, 118, 210, 0.05);
+  border-left: 4px solid rgba(25, 118, 210, 0.6);
+}
+
+.content-section {
+  margin-bottom: 1rem;
 }
 
 .content-title {
-  font-size: 1rem;
-  color: #555;
-  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4a4a4a;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.sign-text {
-  margin-bottom: 12px;
+.title-icon {
+  font-size: 1.2rem;
 }
 
 .text-content {
-  margin: 0;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.8;
   color: #333;
-  white-space: pre-line;
-}
-
-.sign-content.classic .text-content {
-  font-family: 'SimSun', serif;
+  white-space: pre-wrap;
+  padding-left: 0.5rem;
 }
 
 .sign-tone {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-
-.tone-label {
+  text-align: right;
   font-size: 0.9rem;
-  padding: 4px 12px;
-  border-radius: 16px;
-  background-color: #f5f5f5;
-  color: #555;
+  color: #888;
+  margin-top: 1rem;
+  font-style: italic;
 }
 
 .disclaimer {
   font-size: 0.75rem;
   color: #999;
   text-align: center;
-  margin-top: 15px;
-  padding-top: 12px;
-  border-top: 1px dashed #eee;
-  line-height: 1.3;
+  margin-top: 1.5rem;
+  border-top: 1px dashed #ddd;
+  padding-top: 1rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 1rem;
   justify-content: center;
+  width: 100%;
+  max-width: 400px;
 }
 
-.toggle-button, .restart-button {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+.btn {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  text-transform: none;
+  font-weight: 500;
 }
 
-.toggle-button {
-  background-color: #f5f5f5;
-  color: #333;
+.btn-text {
+  white-space: nowrap;
 }
 
-.toggle-button:hover {
-  background-color: #e0e0e0;
-}
-
-.restart-button {
-  background-color: #42b883;
-  color: white;
-}
-
-.restart-button:hover {
-  background-color: #369a6e;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
-  .sign-card {
-    padding: 16px;
+  .sign-card-container {
+    padding: 1rem;
   }
-  
-  .wish-text {
-    font-size: 1.1rem;
-  }
-  
+
   .action-buttons {
     flex-direction: column;
+    align-items: stretch;
   }
-  
-  .toggle-button, .restart-button {
+
+  .btn {
     width: 100%;
   }
 }
+/* 移动端适配样式 - 添加到已有的 <style> 标签底部 */
+@media (max-width: 640px) {
+  .sign-card-container {
+    padding: 0.75rem;
+  }
+  
+  .card-body {
+    padding: 1.25rem 1rem;
+  }
+  
+  .card-title {
+    font-size: 1.2rem;
+    flex-wrap: wrap;
+  }
+  
+  .wish-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .wish-header .badge {
+    align-self: flex-start;
+    margin-top: 0.25rem;
+  }
+  
+  .content-title {
+    font-size: 1rem;
+  }
+  
+  .text-content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  
+  .sign-content {
+    padding: 0.5rem 0.375rem;
+    margin: 0.375rem 0;
+  }
+  
+  .content-section {
+    margin-bottom: 0.75rem;
+  }
+  
+  .title-icon {
+    font-size: 1.1rem;
+  }
+  
+  .sign-tone {
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+  }
+  
+  .disclaimer {
+    font-size: 0.7rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+  }
+  
+  .action-buttons {
+    gap: 0.75rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+  }
+  
+  .divider {
+    margin: 0.5rem 0;
+  }
+}
+
+/* 超小屏幕的额外适配 */
+@media (max-width: 380px) {
+  .card-body {
+    padding: 1rem 0.75rem;
+  }
+  
+  .card-title {
+    font-size: 1.1rem;
+  }
+  
+  .content-title {
+    font-size: 0.95rem;
+  }
+  
+  .text-content {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  .action-buttons {
+    gap: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    min-width: 120px;
+  }
+}
+
 </style>
