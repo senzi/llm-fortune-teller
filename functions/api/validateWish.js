@@ -89,7 +89,7 @@ export async function onRequest(context) {
     const userInput = requestData.wish || '';
     
     // 设置最大允许的愿望长度
-    const MAX_WISH_LENGTH = 200; // 可以根据需要调整这个值
+    const MAX_WISH_LENGTH = 50; // 可以根据需要调整这个值
     
     // 如果用户输入为空，返回错误
     if (!userInput.trim()) {
