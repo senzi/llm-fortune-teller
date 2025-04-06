@@ -94,7 +94,10 @@ function handleRestart() {
 async function validateWish(wish) {
   const response = await fetch('/api/validateWish', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Referer': window.location.origin + '/'
+    },
     body: JSON.stringify({ wish })
   });
   
@@ -108,7 +111,10 @@ async function validateWish(wish) {
 async function calculateSignLevel(wish) {
   const response = await fetch('/api/calculateSignLevel', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Referer': window.location.origin + '/'
+    },
     body: JSON.stringify({ wish })
   });
   
@@ -122,7 +128,10 @@ async function calculateSignLevel(wish) {
 async function generateSign(wish, level) {
   const response = await fetch('/api/generateSign', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      'Referer': window.location.origin + '/'
+    },
     body: JSON.stringify({ wish, level })
   });
   

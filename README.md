@@ -38,6 +38,12 @@ DeepLuck是一个基于Vue 3 + Vite构建的现代化抽签应用，结合Cloudf
 
 ## API 接口文档
 
+### API 安全说明
+
+所有 API 请求必须携带合法的 Referer 或 Origin，并且该值需匹配 `https://lucky.closeai.moe/` 或 `https://deepluck.closeai.moe/` 域名，否则将被拒绝访问或限流处理。这是为了防止未经授权的访问和滥用。
+
+在开发环境中，允许来自 `http://localhost:8788` 和 `http://127.0.0.1:8788` 的请求。
+
 ### 1. 验证愿望接口 `/api/validateWish`
 
 该接口用于验证用户提交的愿望内容是否合规，并返回审核结果。
