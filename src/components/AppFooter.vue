@@ -4,13 +4,15 @@
 
 <template>
   <footer class="app-footer">
+    <div class="divider"></div>
     <div class="disclaimer">
-      本项目由 AI 模型生成内容，仅供娱乐参考，不构成任何建议。使用模型：Deepseek LLM。
+      本项目由 AI 模型生成内容，仅供娱乐参考，不构成任何建议。<br>
+      模型是Deepseek-chat
     </div>
     <div class="copyright">
-      © 2025 DeepLuck | 开源项目地址：
+      © 2025 DeepLuck | 
       <a href="https://github.com/senzi/llm-fortune-teller" target="_blank">
-        GitHub - senzi/llm-fortune-teller
+        GitHub
       </a>
     </div>
   </footer>
@@ -20,10 +22,17 @@
 .app-footer {
   margin-top: 2rem;
   padding: 1.5rem 0;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: transparent;
   color: #999;
   font-size: 12px;
   text-align: center;
+  width: 100%;
+}
+
+.divider {
+  height: 1px;
+  background-color: #eaeaea;
+  margin-bottom: 1.5rem;
   width: 100%;
 }
 
