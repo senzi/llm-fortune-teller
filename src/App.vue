@@ -12,6 +12,13 @@ const signLevelResponse = ref(null);
 const signLevelLoading = ref(false);
 const signLevelError = ref(null);
 
+// GenerateSign API 测试
+const generateSignWish = ref('');
+const selectedLevel = ref('吉'); // 默认选择"吉"
+const generateSignResponse = ref(null);
+const generateSignLoading = ref(false);
+const generateSignError = ref(null);
+
 async function calculateSignLevel() {
   signLevelLoading.value = true;
   signLevelError.value = null;
@@ -82,6 +89,35 @@ async function validateWish() {
     console.error('验证愿望失败:', err);
   } finally {
     wishLoading.value = false;
+  }
+}
+
+// 生成签文函数
+async function generateSign() {
+  generateSignLoading.value = true;
+  generateSignError.value = null;
+  try {
+    const response = await fetch('/api/generateSign', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        wish: generateSignWish.value,
+        level: selectedLevel.value
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    generateSignResponse.value = await response.json();
+  } catch (err) {
+    generateSignError.value = err.message;
+    console.error('生成签文失败:', err);
+  } finally {
+    generateSignLoading.value = false;
   }
 }
 </script>
@@ -181,6 +217,96 @@ async function validateWish() {
 
     <div v-if="signLevelError" class="api-error">
       <p>错误: {{ signLevelError }}</p>
+    </div>
+  </div>
+
+  <div class="api-section generate-sign-section">
+    <h2>测试 GenerateSign API</h2>
+    <div class="wish-form">
+      <textarea 
+        v-model="generateSignWish" 
+        placeholder="请输入您的愿望..." 
+        :disabled="generateSignLoading"
+        class="wish-input"
+      ></textarea>
+      
+      <div class="level-selection">
+        <p>选择签等级:</p>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" v-model="selectedLevel" value="吉" :disabled="generateSignLoading" />
+            <span>吉</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" v-model="selectedLevel" value="中" :disabled="generateSignLoading" />
+            <span>中</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" v-model="selectedLevel" value="平" :disabled="generateSignLoading" />
+            <span>平</span>
+          </label>
+        </div>
+      </div>
+      
+      <button 
+        @click="generateSign" 
+        :disabled="generateSignLoading || !generateSignWish.trim()" 
+        class="api-button"
+      >
+        {{ generateSignLoading ? '生成中...' : '生成签文' }}
+      </button>
+    </div>
+
+    <div v-if="generateSignResponse" class="api-response">
+      <h3>生成结果:</h3>
+      <pre>{{ JSON.stringify(generateSignResponse, null, 2) }}</pre>
+      
+      <div v-if="generateSignResponse.result" class="generate-sign-result" :class="generateSignResponse.result.level">
+        <h4>签文结果</h4>
+        
+        <div class="wish-confirmed">
+          <h5>愿望内容:</h5>
+          <p>{{ generateSignResponse.result.confirmed_wish }}</p>
+        </div>
+        
+        <div class="sign-level">
+          <h5>签等级:</h5>
+          <p>{{ generateSignResponse.result.level }}</p>
+        </div>
+        
+        <div class="sign-text">
+          <h5>签文:</h5>
+          <div class="sign-text-classic">
+            <h6>传统风格:</h6>
+            <p>{{ generateSignResponse.result.sign_text.classic }}</p>
+          </div>
+          <div class="sign-text-modern">
+            <h6>现代风格:</h6>
+            <p>{{ generateSignResponse.result.sign_text.modern }}</p>
+          </div>
+        </div>
+        
+        <div class="sign-interpretation">
+          <h5>解签:</h5>
+          <div class="interpretation-classic">
+            <h6>传统解读:</h6>
+            <p>{{ generateSignResponse.result.interpretation.classic }}</p>
+          </div>
+          <div class="interpretation-modern">
+            <h6>现代解读:</h6>
+            <p>{{ generateSignResponse.result.interpretation.modern }}</p>
+          </div>
+        </div>
+        
+        <div class="sign-tone">
+          <h5>风格:</h5>
+          <p>{{ generateSignResponse.result.tone }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="generateSignError" class="api-error">
+      <p>错误: {{ generateSignError }}</p>
     </div>
   </div>
 </template>
@@ -396,5 +522,107 @@ async function validateWish() {
 
 .sign-level-details p {
   margin: 0.25rem 0;
+}
+
+/* 生成签文相关样式 */
+.generate-sign-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.level-selection {
+  margin-top: 1rem;
+}
+
+.level-selection p {
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.radio-group {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio-label input {
+  cursor: pointer;
+}
+
+.generate-sign-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.generate-sign-result.吉 {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.generate-sign-result.中 {
+  background-color: #fff8e1;
+  border-left: 4px solid #ffc107;
+}
+
+.generate-sign-result.平 {
+  background-color: #f5f5f5;
+  border-left: 4px solid #9e9e9e;
+}
+
+.generate-sign-result h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.generate-sign-result h5 {
+  margin: 1rem 0 0.5rem 0;
+  color: #555;
+  font-size: 1rem;
+}
+
+.generate-sign-result h6 {
+  margin: 0.5rem 0 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.generate-sign-result p {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+}
+
+.sign-text, .sign-interpretation {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #ddd;
+}
+
+.sign-text-classic, .interpretation-classic {
+  margin-bottom: 1rem;
+}
+
+.sign-text-modern p, .sign-text-classic p {
+  font-weight: bold;
+}
+
+.sign-tone {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #ddd;
+}
+
+.sign-tone p {
+  font-weight: bold;
+  color: #555;
 }
 </style>
