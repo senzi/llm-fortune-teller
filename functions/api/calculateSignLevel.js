@@ -30,6 +30,7 @@ export async function onRequest(context) {
   // 允许的域名列表 - 严格限制
   const allowedOrigins = [
     'https://lucky.closeai.moe',      // 生产域名
+    'https://deepluck.closeai.moe',   // 备选生产域名
     'http://127.0.0.1:8788',          // 本地开发服务器
     'http://localhost:8788'           // 本地开发服务器备选
     // 可以添加其他必要的域名

@@ -1,6 +1,40 @@
-# LLM Fortune Teller
+# DeepLuck - 愿望有回应，命运有风格
 
-基于 Vue 3 + Vite 构建的愿望验证应用，使用 Cloudflare Pages Functions 和 DeepSeek API 进行内容审核。
+DeepLuck是一个基于Vue 3 + Vite构建的现代化抽签应用，结合Cloudflare Pages Functions和DeepSeek API，为用户提供个性化的签文体验。用户可以输入愿望，系统会进行内容审核、计算签等级，并生成古风与现代风格的签文及解签。
+
+![DeepLuck应用截图](./public/screenshot.png)
+
+## 功能特点
+
+- **愿望输入**：用户可以输入自己的愿望，系统提供示例愿望供参考
+- **内容审核**：使用DeepSeek API进行内容审核，确保愿望内容符合社区规范
+- **签等级计算**：基于愿望内容和时间计算签等级（吉、中、平）
+- **双风格签文**：同时生成古风和现代风格的签文及解签，满足不同用户喜好
+- **风格切换**：用户可以在古风、现代和双风格模式之间切换
+- **响应式设计**：完美适配移动端和桌面端，提供流畅的用户体验
+- **多域名支持**：支持多个生产域名访问
+
+## 前端组件结构
+
+### 主要视图
+
+- **HomeView.vue**：主页视图，整合所有组件，处理API调用流程
+- **ErrorView.vue**：错误页面，当内容审核不通过时显示
+
+### 核心组件
+
+- **HeaderLogo.vue**：显示DeepLuck品牌标志和副标题
+- **WishInput.vue**：愿望输入组件，包含输入框、提交按钮和示例愿望
+- **StepFlow.vue**：展示抽签过程的步骤流程（读取愿望、掐指一算、生成签文）
+- **SignCard.vue**：签文结果卡片，支持古风/现代/双模式切换
+
+## 使用流程
+
+1. 用户在首页输入愿望或选择示例愿望
+2. 系统进行内容审核，如不通过则跳转到错误页面
+3. 系统计算签等级，并展示"掐指一算"的动画效果
+4. 系统生成签文，并展示"生成签文"的动画效果
+5. 显示签文结果卡片，用户可以切换风格或重新抽签
 
 ## API 接口文档
 
@@ -54,7 +88,7 @@
 #### 验证规则
 
 1. 愿望内容不能为空
-2. 愿望长度不能超过 200 个字符（可在代码中调整 `MAX_WISH_LENGTH` 变量）
+2. 愿望长度不能超过 50 个字符（可在代码中调整 `MAX_WISH_LENGTH` 变量）
 3. 内容审核规则：
    - 阻止（block）：涉及暴力、色情、违法犯罪、仇恨言论、政治敏感等内容
    - 允许（allow）：表达希望、梦想、善意、祝福、个人成长等健康内容
@@ -62,7 +96,7 @@
 #### 示例请求
 
 ```bash
-curl -X POST https://your-domain.com/api/validateWish \
+curl -X POST https://lucky.closeai.moe/api/validateWish \
   -H "Content-Type: application/json" \
   -d '{"wish": "希望明年能够顺利毕业，找到理想的工作"}'
 ```
@@ -149,7 +183,7 @@ curl -X POST https://your-domain.com/api/validateWish \
 #### 示例请求
 
 ```bash
-curl -X POST https://your-domain.com/api/calculateSignLevel \
+curl -X POST https://lucky.closeai.moe/api/calculateSignLevel \
   -H "Content-Type: application/json" \
   -d '{"wish": "希望考试顺利通过"}'
 ```
@@ -237,7 +271,7 @@ curl -X POST https://your-domain.com/api/calculateSignLevel \
 #### 示例请求
 
 ```bash
-curl -X POST https://your-domain.com/api/generateSign \
+curl -X POST https://lucky.closeai.moe/api/generateSign \
   -H "Content-Type: application/json" \
   -d '{"wish": "希望考试顺利通过", "level": "吉"}'
 ```
@@ -278,8 +312,8 @@ curl -X POST https://your-domain.com/api/generateSign \
 {
   "message": "Hello from Cloudflare Pages Function!",
   "timestamp": "2025-04-06T09:00:00.000Z",
-  "requestUrl": "https://your-domain.com/api/hello",
-  "requestOrigin": "https://your-domain.com",
+  "requestUrl": "https://lucky.closeai.moe/api/hello",
+  "requestOrigin": "https://lucky.closeai.moe",
   "testVar": "环境变量值"
 }
 ```
@@ -310,7 +344,7 @@ npm install
 ### 本地开发
 
 ```bash
-npm run dev:api
+npm run dev
 ```
 
 ### 构建生产版本
@@ -322,3 +356,28 @@ npm run build
 ### 部署到 Cloudflare Pages
 
 将项目推送到 GitHub 仓库，然后在 Cloudflare Pages 中连接该仓库进行部署。
+
+## 支持的域名
+
+- 主域名：https://lucky.closeai.moe
+- 备选域名：https://deepluck.closeai.moe
+
+## 技术栈
+
+- **前端框架**：Vue 3 + Vite
+- **路由**：Vue Router
+- **样式**：CSS with Scoped Styling
+- **后端**：Cloudflare Pages Functions
+- **API**：DeepSeek API (LLM)
+
+## 贡献指南
+
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交您的更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开一个 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件
