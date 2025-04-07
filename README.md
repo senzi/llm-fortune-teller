@@ -2,7 +2,7 @@
 
 DeepLuck是一个基于Vue 3 + Vite构建的现代化抽签应用，结合Cloudflare Pages Functions和DeepSeek API，为用户提供个性化的签文体验。用户可以输入愿望，系统会进行内容审核、计算签等级，并生成古风与现代风格的签文及解签。
 
-![DeepLuck应用截图](./public/screenshot.png)
+![DeepLuck应用截图](./.github/screenshot.png)
 
 ## 功能特点
 

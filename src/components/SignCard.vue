@@ -171,6 +171,8 @@ watch(displayMode, async () => {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
               0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
 
 .fortune-indicator {
@@ -221,7 +223,7 @@ watch(displayMode, async () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #1a1a1a;
+  color: #1a1a1a !important;
 }
 
 .sign-content {
@@ -265,7 +267,7 @@ watch(displayMode, async () => {
 .text-content {
   font-size: 1rem;
   line-height: 1.8;
-  color: #333;
+  color: #333 !important;
   white-space: pre-wrap;
   padding-left: 0.5rem;
 }
